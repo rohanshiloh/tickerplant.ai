@@ -1,5 +1,5 @@
 # tickerplant.ai
-## streamline setup of a tickerplant to capture real-time level 2 trade order books on w32 for the q/kdb+/qPy/python stack
+## streamline setup of a tickerplant to capture real-time the full trade/quote order books on w32 for the q/kdb+/qPy/python stack
 
 > console config with icons
 
@@ -9,7 +9,7 @@
 
 > setup of python and qPy
 
-> RESTful interfaces to the bats and iex exchanges
+> RESTful interfaces to the bats, nse and iex exchanges
 
 pre-install : make sure 'developer mode' is set on windows
 pre-install : download and install free w32 version of q/kdb+ following these instructions https://code.kx.com/wiki/Tutorials/Installation#Microsoft_Windows
@@ -35,8 +35,9 @@ what the powershell install file does:
 2. downloads and labels all relevant reference material
 
 - [x] pca for tick analysis
+- [ ] tick capture bats, iex and nse : https://www.nseindia.com/supra_global/content/dotex/data_products.htm
 - [ ] portfolio rebalancing; multi period and multi strategy
 - [ ] transaction cost analysis
-- [ ] actual structural covariance like please don't lie if its not properly regularized cause that makes it not properly structural and you're a fucking liar, sir
+- [ ] actual structural covariance like properly regularized
 - [ ] get a job in belfast (link to that video)
 - [ ] (long term) the perfect distributed svm implementation for q/kdb+
