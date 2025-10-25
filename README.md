@@ -1,5 +1,8 @@
 # tickerplant.ai
+
 ## streamline setup of a tickerplant to capture real-time the full trade/quote order books on w32 for the q/kdb+/qPy/python stack
+
+![alt text](singleconsole.png)
 
 > console config with icons
 
@@ -26,15 +29,13 @@ startup summary
 10. wdb  : 
 ```
 
-
-
 what the powershell install file does:
 
 1. downloads and extracts console2
    - config file provided and copied to console2 folder
 2. downloads and labels all relevant reference material
 
-- [x] pca for tick analysis
+- [X] pca for tick analysis
 - [ ] tick capture bats, iex and nse : https://www.nseindia.com/supra_global/content/dotex/data_products.htm
 - [ ] portfolio rebalancing; multi period and multi strategy
 - [ ] transaction cost analysis
