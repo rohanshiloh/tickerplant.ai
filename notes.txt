@@ -1,0 +1,165 @@
+/startup summary
+/1. tp   : q tick.q sym . -p 5000
+/2. rdb  : q tick/r.q :5000 -p 5001
+/   rdb  : q tick/RealTimeTradeWithAsofQuotes.q -tp localhost:5000 -syms MSFT.O IBM.N -p 5001
+/3. hdb  : q tick/h.q sym -p 5012
+/4. fh   : q .\feedhandler.q
+/5. ctp  : q chainedtick.q :5000 -p 5110 -t 1000
+/6. crdb :
+/9. gw   :
+/10. wdb : 
+
+/detailed notes for tickerplant+gateway
+/
+/1. download console2 and set powershell as the default shell
+/   a. unzip into c:/Program Files/Console2
+/   b. replace the console.xml config file in the above folder with the one from us (C:\Users\Rohan Shiloh Shah\AppData\Roaming\Console\console.xml)
+/   c. search and replace <username> with your windows os username including spaces and accents
+/   d. install micro and update the syntax highlighting file for the q language with q.syn file provided (in folder C:\Users\Rohan Shiloh Shah\.config\micro\syntax)
+/   e. instal scoop and chocolatey package managers using powershell
+/   f. 
+/2. start ticker plant :  q tick.q sym . -p 5000
+/   a. the sym refers to the table schema defined in tick/sym.q
+/   b. the . specifies the location of the logfile and a symYYYY.MM.DD file is created
+/      this file is only really required for the day until the plant executes a .u.endofday[] and persists the rdb's data to the hdb
+/   c. feed plant lists not tables which triggers call to .u.upd 
+/   d. .u.upd async pushes list (`upd;Table;data) to rdb which calls value on it (usually upd:insert but see 2g. for clever upd definition)
+/   e. note: .u.upd is defined on the tickerplant and upd on the rdb
+/   f. main purpose of upd is insertion into rdb in-memory tables
+/   g. upd:`trade`quote!({MC+:1;`trade insert x};{MC+:1;`quote insert x})
+/   TODO is there a reason tick.q hasn't been updated to use -25! which pushes the same message to multiple subscribers?
+/   TODO the number of serializations is reduced drastically
+/   TODO gather all handles subscribing to the same tables/tickers and push once 
+/   TODO -25!(handles;msg)
+/   TODO -25!(123 456i;(`upd;`trade;data))
+/3. start subscriber rdb : q tick/r.q :5000 -p 5001
+/   start special rdb    : q tick/RealTimeTradeWithAsofQuotes.q -tp localhost:5000 -syms MSFT.O IBM.N -p 5001
+/   this should create a sym folder where the rdb will write down the days order book
+/   verify insert on plant : quote upsert ([]time:enlist 0wn;sym:enlist`IBM;bid:enlist 1.2;ask:enlist 1.2;bsize:enlist 1;asize:enlist 1)
+/   verify .u.upd on plant : .u.upd[`quote; (0wn;`IBM;1.2;1.2;1;1)]
+/   restarting the rdb will replay the latest available logfile in the startup directory
+/   NOTE: by upserting last by sym i.e. the latest quotes for each sym in a separate table during upd 
+/         we can avoid an expensive aj later by simply left joining into the latest trades
+/ updQuote:{[d]
+/     `LatestQuote upsert select by sym from d;
+/   }; 
+/   updTrade:{[d]
+/     `TradeWithQuote insert d lj LatestQuote;
+/    };
+/
+/
+/4. start randomized feed handler : q .\feedhandler.q
+/5. test .u.endofday[] on plant which should call .u.end[] on the rdb which writes down a sym file 
+/   in a directory YYYY.MM.DD which also contains the partitioned tables
+/   if the rollover executes sucessfully the trade and quote tables on the rdb should be empty 
+/6. start hdb : q tick/h.q sym -p 5012
+    /port 5012 is the default specified in tick/r.q
+    /this is how the rdb communicates a table reload once it writes to disk at endofday rollover
+/7. start logfile replay process example : q tick/sym.q
+/   a. define upd:insert
+/   b. test log access : count get `:sym2018.04.22
+/   c. replay log : -11! `:sym2018.04.22
+/   NOTE: .u.rep take 2 parameters and is responsible for replaying the logfile on the rdb
+/      i.  a dictionary of table names mapped to their schemas
+/      ii. a pair of the number of messages written and the logfile name
+/   NOTE: .u.rep is called on the last line of r.q
+/       / connect to ticker plant for (schema;(logcount;log))
+/       .u.rep .(hopen `$":",.u.x 0)"(.u.sub[`;`];`.u `i`L)";
+/   d. some important variables:
+/      i.   .u.l : logfile handle
+/      ii.  .u.L : logfile path
+/      iii. .u.i : message count
+/      iv.  .u.j : .u.i + memory buffer = count of messages in tickerplant
+/   e. speed of replay of logfile:
+/      i.   size of logfile (# msgs)
+/      ii.  speed of disk
+/      iii. efficiency of .u.upd
+/   f. for recovery of rdb simply restart process - it connects to tickerplant and gets .u.L/.u.i which it will replay using -11! in .u.rep
+/   g. important difference between -11!`:tplog and value each get 1:tplog i.e. streaming so less memory whereas get pulls entire tplog into memory
+/   h. in case of corruption -11!(-2;`:tplog) will return two numbers instead of one:
+/      i.  valid n chunks - which can be replayed using -11!(n;`:tplog)
+/      ii. valid m bytes
+/8. events at end-of-day or rollover i.e. how tp and hdb and rdb communicate:
+/   a. tickerplant calls .u.endofday which triggers .u.end on all subscribers
+/   b. rdb's call to .u.end calls .Q.hdpf[hdbport;directory;partition;`p#field] on all in-memory tables which:
+/        i.   calls .Q.dpft[directory;partition;`p#field;tablename] on rdb saving splayed tables to disk parition specified
+/        ii.  clears tables on rdb
+/        iii. sends a table reload to hdb on port .u.x[1] which should be hdb (default 5012)
+/9. start chained ticker plant : q chainedtick.q :5000 -p 5110 -t 1000
+/   a. :5000 is the port of the master tickerplant
+/   b. -t specifies the millisecond latency/granularity at which the chained tp subscribes to bulk updates from the master tp
+/   c. the purpose of a chained tickerplant is to un
+/10. start chained rdb : 
+
+
+/11. start wdb : q tick/w.q :5000 :5012
+/    a. the wdb is like the rdb except it periodically (MAX_ROWS) writes to disk
+/    
+
+
+
+
+/test tickerplant? what is ssl.q ?
+/q tick.q
+/q tick/ssl.q
+
+/
+/ 
+ 
+/install Atom
+/ 1. download and install : https://atom.io/
+/ 2. ?? download and install node.js : https://nodejs.org/en/
+/ 3. open an administrator: windows powershell and execute : 
+/ 4. navigate to the install tab in Atom’s settings view, and search for platformio-ide-terminal
+/ 5.
+
+
+/References:
+/ 1. Building Real-Time TickSubscribers - Nathan Perrem, Kx Corp - August 2014p
+/              url : https://code.kx.com/q/wp/building_real_time_tick_subscribers.pdf
+/    Summary : Perrem's excellent paper is a good introduction to standard ticker plant architecture. A must read.
+/              Chapter 4 covers how to build a custom temporally joined trade aj quote architecture with it's own binary logfile.
+/ 2. Order Book: a kdb+ Intraday Storageand Access Methodolog - Niall Coulter - Kx Corp - y
+/              url : https://code.kx.com/q/wp/order_book_a_kdb_intraday_storage_and_access_methodology.pdf
+/    Summary : Coulter covers the fine balance between processing/storage of an order book and it's subsequent retrieval & analysis.
+/              Different trade table schemas and accessor functions are presented and dicussed.
+/ 3. Intraday Writedown Solutions - Colm McCarthy, Kx Corp - March 2014
+/    
+/    Summary : McCarthy is a friend of small shops that don't have buckets of random access memory just lying around.
+               This paper will be incredibly useful to independent researchers running a tickerplant at home on 4core/4gb.
+/ 4. Inferring Trade Direction fromIntraday Data - Charles M. C. Lee and Mark J. Ready - 1991a
+/              url : https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-6261.1991.tb02683.x
+/    Summary : Lee & Ready's seminal paper on tick data anaysis came out in 1991, the same year Nirvana released their album 'Nevermind'.
+/              A few months later Pearl Jam released 'Ten'. They were confusing times. The eighties had been all disco. Only 2 years later,
+/              Arthur Whitney released the first version of q/kdb+ - an equally confusing time. Vectorized? Columns? So strange.
+/              Although it's basic definition existed and was used by tier-1 bank(s) prior to 1993? These might all be lies.
+/              Lee & Ready did their research on a supercomputer at Cornell; likely not running kdb. Oddly enough Canada supported their research.
+/              The paper outlines various "tick tests" for an uptick, downtick, a zero-uptick & a zero-downtick. The additional function tradeclass
+/              in the file tickaddendum.q provides defintions for each of these classes and appends them as a column to the trade table.
+/    q Implementation Algorithm : https://wrds-www.wharton.upenn.edu/pages/support/applications/microstructure-research/lee-and-ready-1991-algorithm/
+/    Python Implementation : The package FinAsym calculates the above "tick tests" in Python as well as the probability of informed trading (see next reference).
+               url: https://cran.r-project.org/web/packages/FinAsym/FinAsym.pdf
+/ 5. Price, Trade, Size & Information in Securities Markets - David Easley & Maureen O'Hara - 1987
+/              http://www.fsa.ulaval.ca/personnel/phgre5/files/Easley_OHara_1987.pdf
+/    Summary : 
+/
+/
+/
+/
+/
+/
+/
+/
+/
+/
+/
+/
+/
+/
+/
+/
+/
+/
+
+
+
