@@ -52,4 +52,4 @@ The blueprint's commands come straight from its repo. Much of the lab and varian
 
 ---
 
-Editor: Rohan Shiloh Shah · rohanshilohshah@outlook.com
+Editor: Rohan Shiloh Shah · [github.com/rohanshiloh/tickerplant.ai](https://github.com/rohanshiloh/tickerplant.ai)
