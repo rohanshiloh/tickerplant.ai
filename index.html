@@ -187,6 +187,11 @@ footer .ok{color:var(--ok);font-weight:600}
 .themebar button:first-of-type{border-radius:4px 0 0 4px;margin-left:0}.themebar button:last-of-type{border-radius:0 4px 4px 0}
 .themebar button:hover{color:var(--fg)}
 .themebar button[aria-pressed="true"]{color:var(--sheet);background:var(--accent);border-color:var(--accent)}
+:root{--hk:#1f4fd1;--hz:#7c3aed;--hq:#0e7490;--hy:#9a3412;--hs:#4d7c0f;--hn:#a3123a;--hx:#b42318}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--hk:#82aaff;--hz:#c4a7ff;--hq:#67d1e6;--hy:#f0a37a;--hs:#a9d38c;--hn:#f28fa6;--hx:#ff8a80}}
+:root[data-theme="dark"]{--hk:#82aaff;--hz:#c4a7ff;--hq:#67d1e6;--hy:#f0a37a;--hs:#a9d38c;--hn:#f28fa6;--hx:#ff8a80}
+pre .hk{color:var(--hk);font-weight:600}pre .hz{color:var(--hz)}pre .hq{color:var(--hq)}pre .hy{color:var(--hy)}
+pre .hs{color:var(--hs)}pre .hn{color:var(--hn)}pre .hx{color:var(--hx);font-weight:600}pre .qp{color:var(--muted)}
 </style>
 
 <div class="sheet">
@@ -2671,3 +2676,45 @@ document.querySelectorAll('.code').forEach(function(box){
 });
 </script>
 <script>(function(){var r=document.documentElement,bs=document.querySelectorAll('.themebar button');function set(v,save){if(v==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',v);bs.forEach(function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-t')===v))});if(save){try{localStorage.setItem('theme',v)}catch(e){}}}var cur='auto';try{cur=localStorage.getItem('theme')||'auto'}catch(e){}set(cur,false);bs.forEach(function(b){b.addEventListener('click',function(){set(b.getAttribute('data-t'),true)})})})();</script>
+<script>/* q/kdb+ syntax highlighting: keyword lists from the qcode IntelliJ and Notepad++ q definitions */
+(function(){
+var KW=new Set("abs acos aj aj0 all and any asc asin asize asof atan attr avg avgs bin boolean bsize byte ceiling char cols cor cos count cov cross csv cut date datetime dd delete deltas depth desc dev differ distinct div do each enlist eval except exec exit exp fby fills first fkeys flip float floor from get getenv group gtime hclose hcount hdel hh hopen hsym http iasc idesc if ij in insert int inter inv key keys last like lj load log long lower lsq ltime ltrim mavg max maxs mcount md5 mdev med meta min mins minute mm mmax mmin mmu mod month msum nbbo neg next not null or over parse peach pj plist prd prds prev price quote rand rank ratios raze read0 read1 real reciprocal reverse rload rotate rsave rtrim save scan second select set setenv short show signum sin sqrt ss ssr string sublist sum sums sv symbol system tables tan til time trade trim txf type uj ungroup union update upper upsert value var view views vs wavg week where while within wj wsum xasc xbar xcol xcols xdesc xexp xgroup xkey xlog xprev xrank year".split(" "));
+var SH=/^\s*(?:\$\s|(?:cd|cat|sed|git|mkdir|ls|tail|head|pkill|pgrep|while|for|printf|echo|curl|rlwrap|alias|export|source|cp|mv|rm|touch|sudo|brew|ps|lsof|kill|du|df|grep|open|bash|sh|chmod|which|whence|python3?|node|nohup|done|do|fi|then|wc|sort|find|time|env|tee|less)(?=\s|$|;)|q(?:\s+-|\s+[\w.\/~$-]+\.q\b|\s*$))/;
+var RE=/(&#?\w+;)|("(?:[^"\\\n]|\\.)*")|(`[\w.:\/]*)|(\.[zQ]\.\w+)|((?:\.[A-Za-z]\w*)+)|([A-Za-z]\w*)|(0x[0-9a-fA-F]+|\d[A-Za-z0-9.:]*)/g;
+function w(c,m){return '<span class="'+c+'">'+m+'</span>';}
+function tok(s){return s.replace(RE,function(m,en,st,sy,zq,dot,id,num){
+  if(en||dot)return m; if(st)return w('hs',m); if(sy)return w('hy',m);
+  if(zq)return w(m.charAt(1)==='z'?'hz':'hq',m); if(id)return KW.has(m)?w('hk',m):m;
+  if(num)return w('hn',m); return m;});}
+function line(h,prompt){
+  var parts=h.split(/(<[^>]+>)/),depth=0,res='',inStr=false,cmt=false,last='';
+  parts.forEach(function(p){
+    if(!p)return;
+    if(p.charAt(0)==='<'){res+=p; if(/^<span/.test(p))depth++; else if(/^<\/span/.test(p))depth--; return;}
+    if(depth>0||cmt){res+=p; last=p.slice(-1); return;}
+    if(prompt&&last===''){var pm=p.match(/^(\s*)q\)/); if(pm){res+=pm[1]+w('qp','q)'); p=p.slice(pm[0].length); last=')';}}
+    if(last===''||last===')'){var sm=p.match(/^(\s*)(\\\\?[A-Za-z]*)/); if(sm&&sm[2]){res+=sm[1]+w('hx',sm[2]); p=p.slice(sm[0].length); last='x';}}
+    var ci=-1;
+    for(var i=0;i<p.length;i++){var ch=p[i];
+      if(inStr&&ch==='\\'){i++;continue;}
+      if(ch==='"'){inStr=!inStr;continue;}
+      if(!inStr&&ch==='/'){var pr=i?p[i-1]:last; if(pr===''||pr===')'&&last===')'&&i===0||/\s/.test(pr)){ci=i;break;}}}
+    if(ci>=0){res+=tok(p.slice(0,ci))+w('c',p.slice(ci)); cmt=true;}
+    else res+=tok(p);
+    last=p.slice(-1)||last;
+  });
+  return res;}
+function hl(pre){
+  var txt=pre.textContent; if(/^\s*---/.test(txt))return;
+  var hs=pre.innerHTML.split('\n'),ts=txt.split('\n'); if(hs.length!==ts.length)return;
+  var hasQ=ts.some(function(l){return /^\s*q\)/.test(l)}),hasSh=ts.some(function(l){return SH.test(l)}),here=null;
+  pre.innerHTML=hs.map(function(h,i){var t=ts[i],lang;
+    if(here){if(/^\s*EOF\s*$/.test(t)){here=null;lang='sh';}else lang=here;}
+    else if(/^\s*q\)/.test(t))lang='qp';
+    else if(SH.test(t))lang='sh';
+    else if(/^\s*#/.test(t))lang='raw';
+    else lang=(hasSh&&!hasQ)?'sh':'q';
+    if(lang==='sh'&&!here&&/<<\s*'?EOF'?/.test(t))here=/\.(ya?ml|json|sh|txt|md)\b/.test(t)?'raw':'q';
+    return (lang==='q'||lang==='qp')?line(h,lang==='qp'):h;}).join('\n');}
+document.querySelectorAll('pre').forEach(function(p){if(!p.closest('svg'))try{hl(p)}catch(e){}});
+})();</script>
