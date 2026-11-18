@@ -170,11 +170,19 @@ footer .ok{color:var(--ok);font-weight:600}
 .meta a:hover{border-bottom-width:2px}
 .byline a{color:inherit;text-decoration:none;border-bottom:1px solid currentColor}
 .byline a:hover{border-bottom-width:2px}
+.trilogy{margin-top:14px;padding:8px 0 8px 12px;border-left:3px solid var(--accent);font-family:var(--sans);font-size:13px;line-height:1.5;text-align:left}
+.trilogy .tl{font-weight:600;color:var(--fg)}
+.trilogy .tnote{color:var(--muted)}
+.trilogy .tparts{display:flex;flex-wrap:wrap;gap:2px 8px}
+.trilogy .tparts span{color:var(--muted)}
+@media (max-width:600px){.trilogy .tparts{flex-direction:column;align-items:flex-start}.trilogy .tparts span{display:none}}
+.trilogy a{color:var(--accent);text-decoration:none;border-bottom:1px solid currentColor}
+.trilogy a:hover{border-bottom-width:2px}
 </style>
 
 <div class="sheet">
 <header>
-  <div class="titleblock"><h1>Sharded Ticks, Segmented History<span class="subtitle">Throughput &amp; Latency in <span style="font-variant-caps:normal;font-feature-settings:normal">q/KDB+</span></span></h1><div class="byline"><a href="https://github.com/rohanshiloh/tickerplant.ai">github.com/rohanshiloh/tickerplant.ai</a></div></div>
+  <div class="titleblock"><h1>Sharded Ticks, Segmented History<span class="subtitle">Throughput &amp; Latency in <span style="font-variant-caps:normal;font-feature-settings:normal">q/KDB+</span></span></h1><div class="byline"><a href="https://github.com/rohanshiloh/tickerplant.ai">github.com/rohanshiloh/tickerplant.ai</a></div><nav class="trilogy" aria-label="Trilogy"><div class="tl">Trilogy Part Three: Sharded Ticks, Segmented History — The Machine</div><div class="tnote">Part One maps how an order becomes a settled trade, Part Two walks the ground a single fill covers, and Part Three builds the machine that captures it all.</div><div class="tparts"><a href="https://rohanshiloh.github.io/order-trade-lifecycle/">Part One: The Order &amp; Trade Lifecycle — The Map</a><span>·</span><a href="https://rohanshiloh.github.io/exec-tca-stack/">Part Two: Anatomy of a Fill — The Territory</a></div></nav></div>
   <div class="meta">KDB-X Community Edition<br>~/Code/blueprints-scalable-ingestion<br><a href="https://github.com/KxSystems/blueprints-scalable-ingestion">github.com/KxSystems/blueprints-scalable-ingestion</a></div>
 </header>
 

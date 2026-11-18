@@ -2,6 +2,8 @@
 
 ### Throughput & Latency in q/KDB+
 
+*Trilogy Part Three: Sharded Ticks, Segmented History — The Machine*
+
 **Read it here: [rohanshiloh.github.io/tickerplant.ai](https://rohanshiloh.github.io/tickerplant.ai/)**
 
 A hands-on runbook for KX's [scalable ingestion blueprint](https://github.com/KxSystems/blueprints-scalable-ingestion): two tickerplant shards (A–M and N–Z), each with its own RDB, WDB and IDB, feeding one segmented HDB behind a shard-aware gateway. It runs on a single laptop with the free KDB-X Community Edition, opens one terminal tab per process, and then takes the stack apart lab by lab.
@@ -41,10 +43,11 @@ The blueprint's commands come straight from its repo. Much of the lab and varian
 - Alvi Kabir: *q Tips: Optimizing Your Real-Time* series
 - Kilpatrick's tickerplant profiling, and Tick-X
 
-## Companion papers
+## The trilogy
 
-- [The Order and Trade Lifecycle](https://rohanshiloh.github.io/order-trade-lifecycle/): how an intention becomes a settled trade, through the OMS, the EMS and the FIX wire to clearing and finality
-- [Anatomy of a Fill](https://rohanshiloh.github.io/exec-tca-stack/): execution benchmarks and TCA on a live tick stack in q/KDB+
+1. [The Order & Trade Lifecycle](https://rohanshiloh.github.io/order-trade-lifecycle/), **the map**: how an intention becomes a settled trade, through the OMS, the EMS and the FIX wire to clearing and finality
+2. [Anatomy of a Fill](https://rohanshiloh.github.io/exec-tca-stack/), **the territory**: execution benchmarks and TCA on a live tick stack in q/KDB+
+3. **Sharded Ticks, Segmented History, the machine**: this runbook
 
 ## This repository
 
