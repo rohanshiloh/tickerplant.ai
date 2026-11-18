@@ -2,7 +2,7 @@
 
 ### Throughput & Latency in q/KDB+
 
-*Trilogy Part Three: Sharded Ticks, Segmented History — The Machine*
+*Trilogy [Part Three: Sharded Ticks, Segmented History — The Machine](https://rohanshiloh.github.io/tickerplant.ai/)*
 
 **Read it here: [rohanshiloh.github.io/tickerplant.ai](https://rohanshiloh.github.io/tickerplant.ai/)**
 
@@ -47,7 +47,7 @@ The blueprint's commands come straight from its repo. Much of the lab and varian
 
 1. [The Order & Trade Lifecycle](https://rohanshiloh.github.io/order-trade-lifecycle/), **the map**: how an intention becomes a settled trade, through the OMS, the EMS and the FIX wire to clearing and finality
 2. [Anatomy of a Fill](https://rohanshiloh.github.io/exec-tca-stack/), **the territory**: execution benchmarks and TCA on a live tick stack in q/KDB+
-3. **Sharded Ticks, Segmented History, the machine**: this runbook
+3. [Sharded Ticks, Segmented History](https://rohanshiloh.github.io/tickerplant.ai/), **the machine**: this runbook
 
 ## This repository
 
