@@ -1,6 +1,7 @@
 <title>Sharded Ticks, Segmented History</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,500;1,500;1,600&family=Schibsted+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<script>try{var _t=localStorage.getItem('theme');if(_t==='light'||_t==='dark')document.documentElement.setAttribute('data-theme',_t)}catch(e){}</script>
 <style>
 /* Layout: one sheet with wide margins. Overview (diagram + roles) → Run it (two columns) → Labs (notes left, commands right) */
 :root{
@@ -179,9 +180,17 @@ footer .ok{color:var(--ok);font-weight:600}
 @media (max-width:600px){.trilogy .tparts{flex-direction:column;align-items:flex-start}.trilogy .tparts span{display:none}}
 .trilogy a{color:var(--accent);text-decoration:none;border-bottom:1px solid currentColor}
 .trilogy a:hover{border-bottom-width:2px}
+:root[data-theme="light"]{color-scheme:light}
+.themebar{display:flex;justify-content:flex-end;align-items:center;gap:0;margin:-8px 0 18px;font-family:var(--sans);font-size:12px}
+.themebar span{color:var(--muted);margin-right:10px;letter-spacing:.06em;text-transform:uppercase;font-size:10.5px}
+.themebar button{font:inherit;color:var(--muted);background:transparent;border:1px solid var(--line);padding:4px 12px;cursor:pointer;margin-left:-1px}
+.themebar button:first-of-type{border-radius:4px 0 0 4px;margin-left:0}.themebar button:last-of-type{border-radius:0 4px 4px 0}
+.themebar button:hover{color:var(--fg)}
+.themebar button[aria-pressed="true"]{color:var(--sheet);background:var(--accent);border-color:var(--accent)}
 </style>
 
 <div class="sheet">
+<div class="themebar" role="group" aria-label="Theme"><span>Theme</span><button type="button" data-t="light" aria-pressed="false">Light</button><button type="button" data-t="dark" aria-pressed="false">Dark</button><button type="button" data-t="auto" aria-pressed="true">Auto</button></div>
 <header>
   <div class="titleblock"><h1>Sharded Ticks, Segmented History<span class="subtitle">Throughput &amp; Latency in <span style="font-variant-caps:normal;font-feature-settings:normal">q/KDB+</span></span></h1><div class="byline"><a href="https://github.com/rohanshiloh/tickerplant.ai">github.com/rohanshiloh/tickerplant.ai</a></div><nav class="trilogy" aria-label="Trilogy"><div class="tl">Trilogy <a href="https://rohanshiloh.github.io/tickerplant.ai/">Part Three: Sharded Ticks, Segmented History — The Machine</a></div><div class="tnote">Part One maps how an order becomes a settled trade, Part Two walks the ground a single fill covers, and <a href="https://rohanshiloh.github.io/tickerplant.ai/">Part Three</a> builds the machine that captures it all.</div><div class="tparts"><a href="https://rohanshiloh.github.io/order-trade-lifecycle/">Part One: The Order &amp; Trade Lifecycle — The Map</a><span>·</span><a href="https://rohanshiloh.github.io/exec-tca-stack/">Part Two: Anatomy of a Fill — The Territory</a></div></nav></div>
   <div class="meta">KDB-X Community Edition<br>~/Code/blueprints-scalable-ingestion<br><a href="https://github.com/KxSystems/blueprints-scalable-ingestion">github.com/KxSystems/blueprints-scalable-ingestion</a></div>
@@ -2661,3 +2670,4 @@ document.querySelectorAll('.code').forEach(function(box){
   });
 });
 </script>
+<script>(function(){var r=document.documentElement,bs=document.querySelectorAll('.themebar button');function set(v,save){if(v==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',v);bs.forEach(function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-t')===v))});if(save){try{localStorage.setItem('theme',v)}catch(e){}}}var cur='auto';try{cur=localStorage.getItem('theme')||'auto'}catch(e){}set(cur,false);bs.forEach(function(b){b.addEventListener('click',function(){set(b.getAttribute('data-t'),true)})})})();</script>
